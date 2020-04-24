@@ -39,8 +39,8 @@ namespace ED2_LAB6_5.Encryption
             int count; int count2;
             for (var x = 2; x < QN; x++)
             {
-                count = MCD(i, n);
-                count2 = MCD(i, QN);
+                count = MCD(x, n);
+                count2 = MCD(x, QN);
                 if ((count == 1) && (count2 == 1))
                 {
                     e = x;
@@ -69,6 +69,33 @@ namespace ED2_LAB6_5.Encryption
                 {
                     writing2.Write(d.ToString() + "," + n.ToString());
                 }
+            }
+        }
+        //Calcular la d.
+        public int d_calculation(int Qn1, int Qn2, int e, int value, int Q_original)
+        {
+            var division = Qn1 / e;
+            var mult1 = e * division;
+            var mult2 = value * division;
+            var result1 = Qn1 - mult1;
+            var result2 = Qn2 - mult2;
+
+            if (result2 < 0)
+            {
+                result2 = Q_original % result2;
+            }
+            if (result1 != 1)
+            {
+                Qn1 = e;
+                e = result1;
+                Qn2 = value;
+                value = result2;
+                return d_calculation(Qn1, Qn2, e, value, Q_original);
+
+            }
+            else
+            {
+                return result2;
             }
         }
     }
