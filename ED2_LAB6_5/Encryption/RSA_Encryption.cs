@@ -157,7 +157,54 @@ namespace ED2_LAB6_5.Encryption
             var encryption_ = Convert.ToInt32(mult);
             return encryption_;
         }
-        
-        
+        //Letura al momento de cifrar.
+        public void read_encryption(string path1_, string path2_, string file2, string f_name2)
+        {
+            System.IO.StreamReader lecture2 = new System.IO.StreamReader(path2_);
+            var key2 = 0;
+            var N2 = 0;
+            while (!lecture2.EndOfStream)
+            {
+                var line2 = lecture2.ReadLine();
+                var values2 = line2.Split(Convert.ToChar(","));
+                key2 = Convert.ToInt32(values2[0]);
+                N2 = Convert.ToInt32(values2[1]);
+            }
+            int size2 = Convert.ToInt32(Math.Ceiling(Math.Log(N2, 256)));
+            var path_cif2 = Path.Combine(file2, Path.GetFileNameWithoutExtension(file2) + ".descif");
+            List<Byte> texto_cif2 = new List<Byte>();
+            using (var stream2 = new FileStream(path1_, FileMode.Open))
+            {
+                using (var reading2 = new BinaryReader(stream2))
+                {
+                    using (var write_stream2 = new FileStream(path_cif2, FileMode.OpenOrCreate))
+                    {
+                        using (var writing2 = new BinaryWriter(write_stream2))
+                        {
+                            var bytes2 = new byte[length];
+                            while (reading2.BaseStream.Position != reading2.BaseStream.Length)
+                            {
+                                bytes2 = reading2.ReadBytes(length * size2);
+                                int counter2 = 1;
+                                string block2 = "";
+                                foreach (var item2 in bytes2)
+                                {
+                                    block2 += Convert.ToString((int)(item2), 2).PadLeft(8, '0');
+                                    if (counter2 % size2 == 0)
+                                    {
+                                        int number2 = Convert.ToInt32(block2, 2);
+                                        int result2 = encryption(number2, key2, N2);
+                                        writing2.Write(Convert.ToByte(result2));
+                                        block2 = "";
+                                    }
+                                    counter2++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
     }
 }
