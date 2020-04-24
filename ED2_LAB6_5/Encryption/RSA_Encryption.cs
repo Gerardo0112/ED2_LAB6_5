@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 
 namespace ED2_LAB6_5.Encryption
@@ -96,6 +97,52 @@ namespace ED2_LAB6_5.Encryption
             else
             {
                 return result2;
+            }
+        }
+        //Lectura del texto.
+        public void read_text(string path1, string path2, string file, string f_name)
+        {
+            System.IO.StreamReader lecture = new System.IO.StreamReader(path2);
+            var key = 0;
+            var N = 0;
+            while (!lecture.EndOfStream)
+            {
+                var line = lecture.ReadLine();
+                var values = line.Split(Convert.ToChar(","));
+                key = Convert.ToInt32(values[0]);
+                N = Convert.ToInt32(values[1]);
+            }
+            byte[] array = BitConverter.GetBytes(N);
+            int size = Convert.ToInt32(Math.Ceiling(Math.Log(N, 256)));
+            var path_cif = Path.Combine(file, Path.GetFileNameWithoutExtension(f_name) + ".rsacif");
+            List<Byte> text_cifrado = new List<Byte>();
+            using (var stream = new FileStream(path1, FileMode.Open))
+            {
+                using (var reading = new BinaryReader(stream))
+                {
+                    using (var write_stream = new FileStream(path_cif, FileMode.OpenOrCreate))
+                    {
+                        using (var writing = new BinaryWriter(write_stream))
+                        {
+                            var bytes = new byte[length];
+                            while (reading.BaseStream.Position != reading.BaseStream.Length)
+                            {
+                                bytes = reading.ReadBytes(length);
+                                foreach (var item in bytes)
+                                {
+                                    BigInteger encryption = BigInteger.ModPow(item, Convert.ToInt32(key), N);
+                                    string binary_encryption = Convert.ToString((int)(encryption), 2);
+                                    string bloque_cif = binary_encryption.PadLeft(size * 8, '0');
+                                    while (bloque_cif.Length != 0)
+                                    {
+                                        writing.Write(Convert.ToByte(bloque_cif.Substring(0, 8), 2));
+                                        bloque_cif = bloque_cif.Remove(0, 8);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
