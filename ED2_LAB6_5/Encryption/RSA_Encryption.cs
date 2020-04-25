@@ -145,5 +145,19 @@ namespace ED2_LAB6_5.Encryption
                 }
             }
         }
+        //Aplicación de cifrado hacia la lectura.
+        public int encryption(int letter, int Key, int N)
+        {
+            var base_number = letter % N;
+            var mult = 1;
+            for (var x = 0; x < Key; x++)
+            {
+                mult = (mult * base_number) % N;
+            }
+            var encryption_ = Convert.ToInt32(mult);
+            return encryption_;
+        }
+        
+        
     }
 }
